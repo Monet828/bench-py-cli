@@ -19,6 +19,15 @@ def run_cli(*args):
     )
 
 
+def test_category_normalization():
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "variants.csv")
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("date,category,amount\n2026-10-08,Food,100\n2026-10-09, FOOD ,200\n")
+        rows = load_rows(path)
+    assert [row["category"] for row in rows] == ["food", "food"]
+
+
 class CoreTest(unittest.TestCase):
     def test_load_rows(self):
         rows = load_rows(SAMPLE)
