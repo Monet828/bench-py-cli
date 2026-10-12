@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from datetime import datetime
 
 from expenses.core import format_summary, load_rows, summarize
 
@@ -15,9 +16,20 @@ def build_parser():
     return parser
 
 
+def valid_month(value):
+    try:
+        datetime.strptime(value, "%Y-%m")
+    except ValueError:
+        return False
+    return len(value) == 7
+
+
 def main(argv=None):
     args = build_parser().parse_args(argv)
     if args.command == "summary":
+        if args.month and not valid_month(args.month):
+            print(f"エラー: invalid month: {args.month}（YYYY-MM で指定）", file=sys.stderr)
+            return 2
         try:
             rows = load_rows(args.file)
         except FileNotFoundError:

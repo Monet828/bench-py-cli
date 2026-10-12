@@ -65,6 +65,13 @@ class CliTest(unittest.TestCase):
         result = run_cli("summary", SAMPLE, "--month", "2026-13")
         self.assertEqual(result.returncode, 2)
         self.assertIn("2026-13", result.stderr)
+        self.assertIn("invalid month", result.stderr)
+        self.assertEqual(result.stdout, "")
+
+    def test_invalid_month_not_a_date(self):
+        result = run_cli("summary", SAMPLE, "--month", "abc")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("invalid month", result.stderr)
         self.assertEqual(result.stdout, "")
 
 
