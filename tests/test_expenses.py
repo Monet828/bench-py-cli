@@ -25,6 +25,15 @@ class CoreTest(unittest.TestCase):
         self.assertEqual(len(rows), 6)
         self.assertEqual(rows[0], {"date": "2026-09-01", "category": "food", "amount": 1200})
 
+    def test_load_rows_normalizes_category_whitespace(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "fuzzy.csv")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("date,category,amount\n2026-09-01, FOOD ,100\n2026-09-02,FOOD,200\n")
+            rows = load_rows(path)
+        self.assertEqual([row["category"] for row in rows], ["FOOD", "FOOD"])
+        self.assertEqual(summarize(rows), {"FOOD": 300})
+
     def test_summarize(self):
         totals = summarize(load_rows(SAMPLE))
         self.assertEqual(totals, {"food": 3550, "transport": 690, "rent": 72000})
