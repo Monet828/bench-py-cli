@@ -6,7 +6,7 @@ import csv
 def load_rows(path):
     """CSV（列: date,category,amount）を読み、行の dict のリストを返す。amount は int（円）。"""
     rows = []
-    with open(path, newline="", encoding="utf-8") as f:
+    with open(path, newline="", encoding='utf-8-sig') as f:
         for record in csv.DictReader(f):
             rows.append(
                 {
