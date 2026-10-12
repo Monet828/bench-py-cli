@@ -3,6 +3,11 @@
 import csv
 
 
+def normalize_category_name(name):
+    """カテゴリ名の前後の空白を除き、小文字にして返す。"""
+    return name.strip().lower()
+
+
 def load_rows(path):
     """CSV（列: date,category,amount）を読み、行の dict のリストを返す。amount は int（円）。"""
     rows = []

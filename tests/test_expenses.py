@@ -4,7 +4,7 @@ import sys
 import tempfile
 import unittest
 
-from expenses.core import format_summary, load_rows, summarize
+from expenses.core import format_summary, load_rows, normalize_category_name, summarize
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SAMPLE = os.path.join(ROOT, "sample.csv")
@@ -31,6 +31,12 @@ class CoreTest(unittest.TestCase):
 
     def test_format_summary(self):
         self.assertEqual(format_summary({"b": 2, "a": 1}), "a\t1\nb\t2\n合計\t3")
+
+    def test_normalize_category_name(self):
+        for name in ["Food", "food", " FOOD "]:
+            normalized = normalize_category_name(name)
+            self.assertEqual(normalized, "food")
+            self.assertEqual(normalized, normalized.lower())
 
 
 class CliTest(unittest.TestCase):
