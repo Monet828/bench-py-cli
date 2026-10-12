@@ -42,6 +42,24 @@ class CliTest(unittest.TestCase):
             ["food\t3550", "rent\t72000", "transport\t690", "合計\t76240"],
         )
 
+    def test_summary_normalizes_category_variants(self):
+        # sample.csv に表記揺れの行（Food, " FOOD "）を足した入力で集計する
+        with open(SAMPLE, encoding="utf-8") as f:
+            content = f.read()
+        if not content.endswith("\n"):
+            content += "\n"
+        content += "2026-10-08,Food,100\n2026-10-09, FOOD ,200\n"
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "variants.csv")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(content)
+            result = run_cli("summary", path)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            result.stdout.strip().splitlines(),
+            ["food\t3850", "rent\t72000", "transport\t690", "合計\t76540"],
+        )
+
     def test_missing_file(self):
         with tempfile.TemporaryDirectory() as d:
             result = run_cli("summary", os.path.join(d, "none.csv"))
