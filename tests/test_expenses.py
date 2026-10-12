@@ -37,8 +37,20 @@ class CoreTest(unittest.TestCase):
                 f.write("2026-09-01, FOOD ,100\n")
                 f.write("2026-09-02,FOOD,200\n")
             rows = load_rows(path)
-        self.assertEqual(rows[0]["category"], "FOOD")
-        self.assertEqual(summarize(rows), {"FOOD": 300})
+        self.assertEqual(rows[0]["category"], "food")
+        self.assertEqual(summarize(rows), {"food": 300})
+
+    def test_summarize_lowercases_mixed_case_category(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "mixed.csv")
+            with open(path, "w", encoding="utf-8", newline="") as f:
+                f.write("date,category,amount\n")
+                f.write("2026-09-01,Food,100\n")
+                f.write("2026-09-02,fOOd,200\n")
+                f.write("2026-09-03,food,300\n")
+            rows = load_rows(path)
+        self.assertEqual([r["category"] for r in rows], ["food", "food", "food"])
+        self.assertEqual(summarize(rows), {"food": 600})
 
     def test_format_summary(self):
         self.assertEqual(format_summary({"b": 2, "a": 1}), "a\t1\nb\t2\n合計\t3")
