@@ -19,7 +19,28 @@ def run_cli(*args):
     )
 
 
-class CoreTest(unittest.TestCase):
+PASSED = os.path.join(ROOT, "tests", "passed.txt")
+_results = []
+
+
+class RecordedTestCase(unittest.TestCase):
+    """実行結果を覚えておき、全部合格なら tearDownModule で passed.txt を書く。"""
+
+    def run(self, result=None):
+        outcome = super().run(result)
+        _results.append(result)
+        return outcome
+
+
+def tearDownModule():
+    if os.path.exists(PASSED):
+        os.remove(PASSED)
+    if _results and all(not r.failures and not r.errors for r in _results if r):
+        with open(PASSED, "w", encoding="utf-8") as f:
+            f.write("OK")
+
+
+class CoreTest(RecordedTestCase):
     def test_load_rows(self):
         rows = load_rows(SAMPLE)
         self.assertEqual(len(rows), 6)
@@ -48,7 +69,7 @@ class CoreTest(unittest.TestCase):
         self.assertEqual(format_summary({"b": 2, "a": 1}), "a\t1\nb\t2\n合計\t3")
 
 
-class CliTest(unittest.TestCase):
+class CliTest(RecordedTestCase):
     def test_summary(self):
         result = run_cli("summary", SAMPLE)
         self.assertEqual(result.returncode, 0, result.stderr)
