@@ -29,6 +29,21 @@ class CoreTest(unittest.TestCase):
         totals = summarize(load_rows(SAMPLE))
         self.assertEqual(totals, {"food": 3550, "transport": 690, "rent": 72000})
 
+    def test_category_variants_are_merged(self):
+        csv_text = (
+            "date,category,amount\n"
+            "2026-09-01,food,100\n"
+            "2026-09-02, FOOD ,200\n"
+            "2026-09-03,Food,300\n"
+        )
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "variants.csv")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(csv_text)
+            rows = load_rows(path)
+        self.assertEqual([r["category"] for r in rows], ["food", "food", "food"])
+        self.assertEqual(summarize(rows), {"food": 600})
+
     def test_format_summary(self):
         self.assertEqual(format_summary({"b": 2, "a": 1}), "a\t1\nb\t2\n合計\t3")
 
