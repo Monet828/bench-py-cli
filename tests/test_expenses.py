@@ -52,6 +52,13 @@ class CoreTest(unittest.TestCase):
         self.assertEqual([r["category"] for r in rows], ["food", "food", "food"])
         self.assertEqual(summarize(rows), {"food": 600})
 
+    def test_summarize_normalizes_unnormalized_rows(self):
+        rows = [
+            {"date": "2026-09-01", "category": " FOOD ", "amount": 10},
+            {"date": "2026-09-02", "category": "Food", "amount": 30},
+        ]
+        self.assertEqual(summarize(rows), {'food': 40})
+
     def test_format_summary(self):
         self.assertEqual(format_summary({"b": 2, "a": 1}), "a\t1\nb\t2\n合計\t3")
 
