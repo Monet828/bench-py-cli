@@ -50,6 +50,11 @@ class CliTest(unittest.TestCase):
             ["food\t2050", "transport\t460", "合計\t2510"],
         )
 
+    def test_summary_month_filter_no_data(self):
+        result = run_cli("summary", SAMPLE, "--month", "2020-01")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip().splitlines(), ["合計\t0"])
+
     def test_summary_month_invalid_format_stderr(self):
         for month in ["2026-13", "abc"]:
             with self.subTest(month=month):
