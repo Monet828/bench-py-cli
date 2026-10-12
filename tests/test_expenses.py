@@ -50,6 +50,14 @@ class CliTest(unittest.TestCase):
             ["food\t2050", "transport\t460", "合計\t2510"],
         )
 
+    def test_summary_month_invalid_format_stderr(self):
+        for month in ["2026-13", "abc"]:
+            with self.subTest(month=month):
+                result = run_cli("summary", SAMPLE, "--month", month)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("エラー", result.stderr)
+                self.assertIn(month, result.stderr)
+
     def test_missing_file(self):
         with tempfile.TemporaryDirectory() as d:
             result = run_cli("summary", os.path.join(d, "none.csv"))
