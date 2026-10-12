@@ -34,6 +34,18 @@ class CoreTest(unittest.TestCase):
                 f.write(b"\xef\xbb\xbf" + data)
             self.assertEqual(load_rows(path), load_rows(SAMPLE))
 
+    def test_load_rows_utf8_sig(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "utf8sig.csv")
+            with open(path, "w", newline="", encoding="utf-8-sig") as f:
+                f.write("date,category,amount\n2026-09-01,食費,1200\n")
+            with open(path, "rb") as f:
+                self.assertTrue(f.read().startswith(b"\xef\xbb\xbf"))
+            self.assertEqual(
+                load_rows(path),
+                [{"date": "2026-09-01", "category": "食費", "amount": 1200}],
+            )
+
     def test_summarize(self):
         totals = summarize(load_rows(SAMPLE))
         self.assertEqual(totals, {"food": 3550, "transport": 690, "rent": 72000})
