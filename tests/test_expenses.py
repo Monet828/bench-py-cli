@@ -8,6 +8,7 @@ from expenses.core import format_summary, load_rows, summarize
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SAMPLE = os.path.join(ROOT, "sample.csv")
+SAMPLE_WITH_BOM = os.path.join(ROOT, "tests", "sample_with_bom.csv")
 
 
 def run_cli(*args):
@@ -23,6 +24,13 @@ class CoreTest(unittest.TestCase):
     def test_load_rows(self):
         rows = load_rows(SAMPLE)
         self.assertEqual(len(rows), 6)
+        self.assertEqual(rows[0], {"date": "2026-09-01", "category": "food", "amount": 1200})
+
+    def test_load_rows_with_bom(self):
+        with open(SAMPLE_WITH_BOM, "rb") as f:
+            self.assertEqual(f.read(3), b"\xef\xbb\xbf")
+        rows = load_rows(SAMPLE_WITH_BOM)
+        self.assertEqual(len(rows), 2)
         self.assertEqual(rows[0], {"date": "2026-09-01", "category": "food", "amount": 1200})
 
     def test_summarize(self):
