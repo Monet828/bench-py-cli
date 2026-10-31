@@ -53,6 +53,14 @@ class CliTest(unittest.TestCase):
         self.assertIn("合計\t", result.stdout)
         self.assertNotEqual(result.stdout.strip(), "合計\t0")
 
+    def test_summary_month_only_that_month(self):
+        result = run_cli("summary", SAMPLE, "--month", "2026-09")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            result.stdout.strip().splitlines(),
+            ["food\t2050", "transport\t460", "合計\t2510"],
+        )
+
     def test_missing_file(self):
         with tempfile.TemporaryDirectory() as d:
             result = run_cli("summary", os.path.join(d, "none.csv"))
