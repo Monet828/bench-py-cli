@@ -1,9 +1,18 @@
 """コマンドの入口。`python3 -m expenses summary FILE`。"""
 
 import argparse
+import re
 import sys
 
 from expenses.core import filter_month, format_summary, load_rows, summarize
+
+
+def month_type(value):
+    if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", value):
+        raise argparse.ArgumentTypeError(
+            f"月は YYYY-MM 形式（月は 01〜12）で指定する: {value}"
+        )
+    return value
 
 
 def build_parser():
@@ -11,7 +20,7 @@ def build_parser():
     sub = parser.add_subparsers(dest="command", required=True)
     summary = sub.add_parser("summary", help="カテゴリごとの合計を出す")
     summary.add_argument("file", help="CSV ファイル（列: date,category,amount）")
-    summary.add_argument("--month", help="集計する月（YYYY-MM）。省略すると全データ")
+    summary.add_argument("--month", type=month_type, help="集計する月（YYYY-MM）。省略すると全データ")
     return parser
 
 
