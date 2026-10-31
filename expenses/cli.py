@@ -1,9 +1,12 @@
 """コマンドの入口。`python3 -m expenses summary FILE`。"""
 
 import argparse
+import re
 import sys
 
 from expenses.core import filter_month, format_summary, load_rows, summarize
+
+MONTH_PATTERN = re.compile(r"\d{4}-(0[1-9]|1[0-2])")
 
 
 def build_parser():
@@ -18,6 +21,9 @@ def build_parser():
 def main(argv=None):
     args = build_parser().parse_args(argv)
     if args.command == "summary":
+        if args.month is not None and not MONTH_PATTERN.fullmatch(args.month):
+            print(f"エラー: --month は YYYY-MM 形式で指定する: {args.month}", file=sys.stderr)
+            return 1
         try:
             rows = load_rows(args.file)
         except FileNotFoundError:
