@@ -26,6 +26,11 @@ def validate_month(month):
     return month
 
 
+def filter_by_month(rows, month):
+    """date が指定の月（YYYY-MM）に属する行だけを返す。"""
+    return [row for row in rows if row["date"].startswith(month + "-")]
+
+
 def summarize(rows):
     """カテゴリごとの合計を dict で返す。"""
     totals = {}

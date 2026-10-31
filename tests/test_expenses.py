@@ -4,7 +4,7 @@ import sys
 import tempfile
 import unittest
 
-from expenses.core import format_summary, load_rows, summarize
+from expenses.core import filter_by_month, format_summary, load_rows, summarize
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SAMPLE = os.path.join(ROOT, "sample.csv")
@@ -28,6 +28,11 @@ class CoreTest(unittest.TestCase):
     def test_summarize(self):
         totals = summarize(load_rows(SAMPLE))
         self.assertEqual(totals, {"food": 3550, "transport": 690, "rent": 72000})
+
+    def test_filter_by_month(self):
+        rows = filter_by_month(load_rows(SAMPLE), "2026-09")
+        self.assertEqual(len(rows), 3)
+        self.assertTrue(all(row["date"].startswith("2026-09-") for row in rows))
 
     def test_format_summary(self):
         self.assertEqual(format_summary({"b": 2, "a": 1}), "a\t1\nb\t2\n合計\t3")
@@ -53,7 +58,23 @@ class CliTest(unittest.TestCase):
     def test_month_valid(self):
         result = run_cli("summary", SAMPLE, "--month", "2026-09")
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("合計", result.stdout)
+        self.assertEqual(
+            result.stdout.strip().splitlines(),
+            ["food\t2050", "transport\t460", "合計\t2510"],
+        )
+
+    def test_month_october(self):
+        result = run_cli("summary", SAMPLE, "--month", "2026-10")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            result.stdout.strip().splitlines(),
+            ["food\t1500", "rent\t72000", "transport\t230", "合計\t73730"],
+        )
+
+    def test_month_no_rows(self):
+        result = run_cli("summary", SAMPLE, "--month", "2026-08")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), "合計\t0")
 
     def test_missing_file(self):
         with tempfile.TemporaryDirectory() as d:

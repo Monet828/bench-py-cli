@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from expenses.core import format_summary, load_rows, summarize, validate_month
+from expenses.core import filter_by_month, format_summary, load_rows, summarize, validate_month
 
 
 def build_parser():
@@ -30,7 +30,7 @@ def main(argv=None):
             print(f"エラー: ファイルが見つからない: {args.file}", file=sys.stderr)
             return 1
         if args.month is not None:
-            rows = [row for row in rows if row["date"].startswith(args.month + "-")]
+            rows = filter_by_month(rows, args.month)
         print(format_summary(summarize(rows)))
         return 0
     return 2
