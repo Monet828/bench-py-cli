@@ -42,6 +42,18 @@ class CliTest(unittest.TestCase):
             ["food\t3550", "rent\t72000", "transport\t690", "合計\t76240"],
         )
 
+    def test_summary_bom(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "bom.csv")
+            with open(path, "w", newline="", encoding="utf-8-sig") as f:
+                f.write("date,category,amount\n2026-09-01,food,1200\n2026-09-02,rent,800\n")
+            result = run_cli("summary", path)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            result.stdout.strip().splitlines(),
+            ["food\t1200", "rent\t800", "合計\t2000"],
+        )
+
     def test_missing_file(self):
         with tempfile.TemporaryDirectory() as d:
             result = run_cli("summary", os.path.join(d, "none.csv"))
