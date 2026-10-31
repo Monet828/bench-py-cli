@@ -18,6 +18,11 @@ def load_rows(path):
     return rows
 
 
+def filter_month(rows, month):
+    """date が month（YYYY-MM）で始まる行だけを返す。"""
+    return [row for row in rows if row["date"].startswith(month + "-")]
+
+
 def summarize(rows):
     """カテゴリごとの合計を dict で返す。"""
     totals = {}
@@ -27,7 +32,7 @@ def summarize(rows):
 
 
 def format_summary(totals):
-    """集計を出力の行にする。カテゴリ名の順に「カテゴリ<TAB>金額」、最後に「合計<TAB>金額」。"""
+    """集計を出力の行にする。カテゴリ名の順に「カテゴリ<TAB>金額」、最後に「合計<TAB>金額」。データが空なら「合計<TAB>0」だけ。"""
     lines = [f"{category}\t{totals[category]}" for category in sorted(totals)]
-    lines.append(f"合計\t{sum(totals.values())}")
+    lines.append(f"合計\t{sum(totals.values()) if totals else 0}")
     return "\n".join(lines)
