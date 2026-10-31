@@ -11,7 +11,7 @@ def load_rows(path):
             rows.append(
                 {
                     "date": record["date"].strip(),
-                    "category": record["category"].strip(),
+                    "category": record["category"].strip().lower(),
                     "amount": int(record["amount"]),
                 }
             )

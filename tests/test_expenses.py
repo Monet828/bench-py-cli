@@ -29,6 +29,18 @@ class CoreTest(unittest.TestCase):
         totals = summarize(load_rows(SAMPLE))
         self.assertEqual(totals, {"food": 3550, "transport": 690, "rent": 72000})
 
+    def test_category_whitespace_and_case(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "ws.csv")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("date,category,amount\n2026-09-01, FOOD ,100\n2026-09-02,FOOD,200\n")
+            rows = load_rows(path)
+            self.assertEqual([r["category"] for r in rows], ["food", "food"])
+            self.assertEqual(summarize(rows), {"food": 300})
+            result = run_cli("summary", path)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip().splitlines(), ["food\t300", "合計\t300"])
+
     def test_format_summary(self):
         self.assertEqual(format_summary({"b": 2, "a": 1}), "a\t1\nb\t2\n合計\t3")
 
