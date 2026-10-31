@@ -29,6 +29,11 @@ class CoreTest(unittest.TestCase):
         totals = summarize(load_rows(SAMPLE))
         self.assertEqual(totals, {"food": 3550, "transport": 690, "rent": 72000})
 
+    def test_summarize_month(self):
+        rows = load_rows(SAMPLE)
+        self.assertEqual(summarize(rows, month="2026-10"), {"rent": 72000, "food": 1500, "transport": 230})
+        self.assertEqual(summarize(rows, month=None), summarize(rows))
+
     def test_format_summary(self):
         self.assertEqual(format_summary({"b": 2, "a": 1}), "a\t1\nb\t2\n合計\t3")
 
@@ -54,6 +59,15 @@ class CliTest(unittest.TestCase):
         result = run_cli("summary", SAMPLE, "--month", "2026-09")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("合計", result.stdout)
+        self.assertEqual(
+            result.stdout.strip().splitlines(),
+            ["food\t2050", "transport\t460", "合計\t2510"],
+        )
+
+    def test_month_no_data(self):
+        result = run_cli("summary", SAMPLE, "--month", "2026-01")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip().splitlines(), ["合計\t0"])
 
     def test_missing_file(self):
         with tempfile.TemporaryDirectory() as d:

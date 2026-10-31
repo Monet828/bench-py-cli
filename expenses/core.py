@@ -26,10 +26,12 @@ def validate_month(month):
     return month
 
 
-def summarize(rows):
-    """カテゴリごとの合計を dict で返す。"""
+def summarize(rows, month=None):
+    """カテゴリごとの合計を dict で返す。month（YYYY-MM）が None でなければ、その月の行だけ集計する。"""
     totals = {}
     for row in rows:
+        if month is not None and not row["date"].startswith(month + "-"):
+            continue
         totals[row["category"]] = totals.get(row["category"], 0) + row["amount"]
     return totals
 

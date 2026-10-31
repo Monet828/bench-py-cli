@@ -29,8 +29,6 @@ def main(argv=None):
         except FileNotFoundError:
             print(f"エラー: ファイルが見つからない: {args.file}", file=sys.stderr)
             return 1
-        if args.month is not None:
-            rows = [row for row in rows if row["date"].startswith(args.month + "-")]
-        print(format_summary(summarize(rows)))
+        print(format_summary(summarize(rows, month=args.month)))
         return 0
     return 2
