@@ -29,6 +29,23 @@ class CoreTest(unittest.TestCase):
         totals = summarize(load_rows(SAMPLE))
         self.assertEqual(totals, {"food": 3550, "transport": 690, "rent": 72000})
 
+    def test_summarize_normalizes_category(self):
+        rows = [
+            {"date": "2026-09-01", "category": "Food", "amount": 100},
+            {"date": "2026-09-02", "category": "food", "amount": 200},
+            {"date": "2026-09-03", "category": " FOOD ", "amount": 300},
+        ]
+        self.assertEqual(summarize(rows), {"food": 600})
+
+    def test_cli_normalizes_category(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "mixed.csv")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("date,category,amount\n2026-09-01,Food,100\n2026-09-02,food,200\n2026-09-03, FOOD ,300\n")
+            result = run_cli("summary", path)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip().splitlines(), ["food\t600", "合計\t600"])
+
     def test_format_summary(self):
         self.assertEqual(format_summary({"b": 2, "a": 1}), "a\t1\nb\t2\n合計\t3")
 
