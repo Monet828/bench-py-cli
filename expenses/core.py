@@ -1,6 +1,7 @@
 """CSV の読み込みと集計。"""
 
 import csv
+import re
 
 
 def load_rows(path):
@@ -16,6 +17,13 @@ def load_rows(path):
                 }
             )
     return rows
+
+
+def validate_month(month):
+    """月が YYYY-MM（月は 01-12）の形式か調べる。不正なら ValueError。"""
+    if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", month):
+        raise ValueError(f"月の形式が不正（YYYY-MM、月は 01-12）: {month}")
+    return month
 
 
 def summarize(rows):
