@@ -48,6 +48,19 @@ class CliTest(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("見つからない", result.stderr)
 
+    def test_invalid_month(self):
+        for month in ["2026-13", "2026/09", "abc", "2026-00", "26-09", "2026-9", ""]:
+            with self.subTest(month=month):
+                result = run_cli("summary", SAMPLE, "--month", month)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("--month", result.stderr)
+                self.assertEqual(result.stdout, "")
+
+    def test_valid_month(self):
+        result = run_cli("summary", SAMPLE, "--month", "2026-09")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("合計", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()
