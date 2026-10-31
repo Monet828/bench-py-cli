@@ -25,6 +25,14 @@ class CoreTest(unittest.TestCase):
         self.assertEqual(len(rows), 6)
         self.assertEqual(rows[0], {"date": "2026-09-01", "category": "food", "amount": 1200})
 
+    def test_load_rows_with_bom(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "bom.csv")
+            with open(path, "wb") as f:
+                f.write("﻿date,category,amount\n2026-09-01,food,1200\n".encode("utf-8"))
+            rows = load_rows(path)
+        self.assertEqual(rows, [{"date": "2026-09-01", "category": "food", "amount": 1200}])
+
     def test_summarize(self):
         totals = summarize(load_rows(SAMPLE))
         self.assertEqual(totals, {"food": 3550, "transport": 690, "rent": 72000})

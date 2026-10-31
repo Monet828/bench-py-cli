@@ -7,7 +7,11 @@ def load_rows(path):
     """CSV（列: date,category,amount）を読み、行の dict のリストを返す。amount は int（円）。"""
     rows = []
     with open(path, newline="", encoding="utf-8") as f:
-        for record in csv.DictReader(f):
+        reader = csv.DictReader(f)
+        if reader.fieldnames:
+            # BOM 付き UTF-8 でも先頭のキーが "﻿date" にならないようにする
+            reader.fieldnames = [name.lstrip("﻿") for name in reader.fieldnames]
+        for record in reader:
             rows.append(
                 {
                     "date": record["date"].strip(),
