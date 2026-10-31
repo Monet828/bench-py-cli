@@ -11,7 +11,7 @@ def load_rows(path):
             rows.append(
                 {
                     "date": record["date"].strip(),
-                    "category": record["category"].strip(),
+                    "category": record["category"].strip().lower(),
                     "amount": int(record["amount"]),
                 }
             )
@@ -22,7 +22,8 @@ def summarize(rows):
     """カテゴリごとの合計を dict で返す。"""
     totals = {}
     for row in rows:
-        totals[row["category"]] = totals.get(row["category"], 0) + row["amount"]
+        category = row["category"].strip().lower()
+        totals[category] = totals.get(category, 0) + row["amount"]
     return totals
 
 
