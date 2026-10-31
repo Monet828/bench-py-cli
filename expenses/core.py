@@ -18,8 +18,10 @@ def load_rows(path):
     return rows
 
 
-def summarize(rows):
-    """カテゴリごとの合計を dict で返す。"""
+def summarize(rows, month=None):
+    """カテゴリごとの合計を dict で返す。month（YYYY-MM）を指定すると、その月の行だけ集計する。"""
+    if month is not None:
+        rows = [row for row in rows if row["date"].startswith(month + "-")]
     totals = {}
     for row in rows:
         totals[row["category"]] = totals.get(row["category"], 0) + row["amount"]
